@@ -10,7 +10,7 @@ const getFileContentInBase64 = (route: string) => {
   return encoded;
 };
 
-const readTree = (route: string) => {
+const readTree = (route: string): any => {
   const treeDirArr = fs
     .readdirSync(route)
     .filter((childrenName) => !foldersToOmit.includes(childrenName))
@@ -27,13 +27,15 @@ export const encodeProject = () => {
   try {
     const currentRoute = getCurrentRoute();
     const projectObjInBase64 = readTree(currentRoute);
-    const projectObjInBase64Encoded = btoa(JSON.stringify(projectObjInBase64));
+
+    const buffer = Buffer.from(JSON.stringify(projectObjInBase64), "utf8");
+    const projectObjInBase64Encoded = buffer.toString("base64");
 
     const fileName = `encodedproject-${Date.now()}.txt`;
     fs.writeFileSync(fileName, projectObjInBase64Encoded);
 
     console.log("Your project was encoded here: ", fileName);
   } catch (error) {
-    console.error((error as Error).message);
+    console.error(error);
   }
 };
