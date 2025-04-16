@@ -22,4 +22,9 @@ A developer-friendly CLI that turns any project (JavaScript, TypeScript, Java, e
 
 ```bash
 npm install -g @yei-linux/code-share
+npx @yei-linux/code-share
 ```
+
+- 📦 If you want to encode choose "Encode" and then put your secured password(its optional if you want more security). A TXT encoded will be generated where you can save it.
+
+- 🔁 When you want to decode it just choose "Decode" put your password and a folder will be generated with all your folders, files, etc.
