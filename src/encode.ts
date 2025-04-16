@@ -1,40 +1,59 @@
 import fs from "node:fs";
 import path from "node:path";
-import { getCurrentRoute, isFolder } from "./helpers";
+import { getCurrentRoute, ignoreFolderFiles } from "./helpers";
+import archiver from "archiver";
+import ignore from "ignore";
+import { globSync } from "glob";
 
-const foldersToOmit = ["node_modules"];
+const getIgnoreFiles = (currentRoute: string) => {
+  let gitIgnoreData: string[] = [];
+  const ig = ignore();
+  const ignoreFilePath = path.join(currentRoute, ".gitignore");
 
-const getFileContentInBase64 = (route: string) => {
-  const fileContent = fs.readFileSync(route);
-  const encoded = fileContent.toString("base64");
-  return encoded;
+  const isExist = fs.existsSync(ignoreFilePath);
+  if (isExist) {
+    const gitIgnoreFile = fs.readFileSync(ignoreFilePath, "utf-8");
+    gitIgnoreData = gitIgnoreFile.split("\n");
+  }
+
+  const ignoreFilesSet = [...new Set([...gitIgnoreData, ...ignoreFolderFiles])];
+  console.log(ignoreFilesSet);
+
+  ig.add(ignoreFilesSet);
+  return ig;
 };
 
-const readTree = (route: string): any => {
-  const treeDirArr = fs
-    .readdirSync(route)
-    .filter((childrenName) => !foldersToOmit.includes(childrenName))
-    .map((childrenName) => {
-      const fullPath = path.join(route, childrenName);
-      if (isFolder(fullPath)) return [childrenName, readTree(fullPath)];
-      return [childrenName, getFileContentInBase64(fullPath)];
-    });
-
-  return Object.fromEntries(treeDirArr);
-};
-
-export const encodeProject = () => {
+export const encodeProject = async () => {
   try {
     const currentRoute = getCurrentRoute();
-    const projectObjInBase64 = readTree(currentRoute);
 
-    const buffer = Buffer.from(JSON.stringify(projectObjInBase64), "utf8");
-    const projectObjInBase64Encoded = buffer.toString("base64");
+    const zipPath = path.join(currentRoute, "temp.zip");
+    const output = fs.createWriteStream(zipPath);
+    const archive = archiver("zip", { zlib: { level: 9 } });
+    archive.pipe(output);
 
-    const fileName = `encodedproject-${Date.now()}.txt`;
-    fs.writeFileSync(fileName, projectObjInBase64Encoded);
+    const ignoreFiles = getIgnoreFiles(currentRoute);
+    const files = globSync("**/*", {
+      cwd: currentRoute,
+      dot: true,
+      nodir: true,
+    });
 
-    console.log("Your project was encoded here: ", fileName);
+    for (const file of files) {
+      if (ignoreFiles && !ignoreFiles.ignores(file)) {
+        archive.file(path.join(currentRoute, file), { name: file });
+      }
+    }
+
+    await archive.finalize();
+    output.on("close", () => {
+      const zipBuffer = fs.readFileSync(zipPath);
+      const base64 = zipBuffer.toString("base64");
+      const fileName = `encodedproject-${Date.now()}.txt`;
+      fs.writeFileSync(fileName, base64, "utf8");
+      fs.unlinkSync(zipPath);
+      console.log("Your project was encoded here: ", fileName);
+    });
   } catch (error) {
     console.error(error);
   }

@@ -16,6 +16,7 @@ build({
   ...sharedConfig,
   platform: "node", // for CJS
   outfile: "dist/index.cjs",
+  external: ["@aws-sdk/client-s3"],
 });
 
 build({
@@ -23,4 +24,5 @@ build({
   outfile: "dist/index.esm.js",
   platform: "node", // for ESM
   format: "esm",
+  external: ["@aws-sdk/client-s3"],
 });

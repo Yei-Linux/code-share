@@ -8,12 +8,12 @@ declare module '@yei-linux/codeshare/src/decode' {
 
 }
 declare module '@yei-linux/codeshare/src/encode' {
-  export const encodeProject: () => void;
+  export const encodeProject: () => Promise<void>;
 
 }
 declare module '@yei-linux/codeshare/src/helpers' {
   export const getCurrentRoute: () => string;
-  export const isFolder: (route: string) => boolean;
+  export const ignoreFolderFiles: string[];
 
 }
 declare module '@yei-linux/codeshare' {

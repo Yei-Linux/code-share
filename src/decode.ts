@@ -1,48 +1,30 @@
 import fs from "fs";
 import path from "node:path";
 import { getCurrentRoute } from "./helpers";
-
-const decodeContent = (childrenContent: any) => {
-  if (typeof childrenContent === "object") {
-    return childrenContent as any;
-  }
-
-  return atob(childrenContent) as string;
-};
-
-const readTree = (tree: any, treePath: string) => {
-  Object.entries(tree).forEach(([childrenName, childrenContent]) => {
-    const decodedChildrenContent = decodeContent(childrenContent);
-    const fullPath = path.join(treePath, childrenName);
-    if (typeof childrenContent === "object") {
-      fs.mkdirSync(fullPath);
-      readTree(decodedChildrenContent, fullPath);
-      return;
-    }
-
-    fs.writeFileSync(fullPath, decodedChildrenContent);
-  });
-};
+import unzipper from "unzipper";
 
 export const decodeProject = (filePathContainsProjectEncoded: string) => {
   try {
-    const isExists = fs.existsSync(filePathContainsProjectEncoded);
-    if (!isExists) throw new Error("This file does not exist");
+    const currentRoute = getCurrentRoute();
+    const decodedFolderName = `decodedproject-${Date.now()}`;
+    fs.mkdirSync(decodedFolderName);
+    const decodedPathName = path.join(currentRoute, decodedFolderName);
 
-    const contentFileBase64 = fs
-      .readFileSync(filePathContainsProjectEncoded)
-      .toString("utf8");
-    if (!contentFileBase64) throw new Error("This file does have any content");
+    const fileBase64Content = fs.readFileSync(
+      filePathContainsProjectEncoded,
+      "utf-8"
+    );
+    const zipBuffer = Buffer.from(fileBase64Content, "base64");
 
-    const folderName = `decoded-project-${Date.now()}`;
-    const pathFolderToCreate = path.join(getCurrentRoute(), folderName);
-    fs.mkdirSync(pathFolderToCreate);
+    const zipPath = path.join(currentRoute, "temp.zip");
+    fs.writeFileSync(zipPath, zipBuffer);
 
-    const stringParsed = atob(contentFileBase64);
-    const jsonParsed = JSON.parse(stringParsed);
-
-    readTree(jsonParsed, pathFolderToCreate);
-    console.log("Your project was dedoded here: ", folderName);
+    fs.createReadStream(zipPath)
+      .pipe(unzipper.Extract({ path: decodedPathName }))
+      .on("close", () => {
+        fs.unlinkSync(zipPath);
+        console.log("Your project was dedoded here", decodedPathName);
+      });
   } catch (error) {
     console.error((error as Error).message);
   }
