@@ -1,8 +1,8 @@
-![alt icon](image.png)
-
 # 🔐 Code Share CLI
 
-A developer-friendly CLI that turns any project (JavaScript, TypeScript, Java, etc.) into a **single Base64 `.txt` file**, and allows you to restore it later — even upload it to **Google Drive** for secure cloud backups.
+![alt icon](image.png)
+
+A developer-friendly CLI that turns any project (JavaScript, TypeScript, Java, etc.) into a **single Base64 `.txt` file**, and allows you to restore it later — encrypting the content with your password chosen if you want.
 
 > Ideal for quick sharing, backups, archiving, or shipping prototypes without needing Git.
 
@@ -10,11 +10,11 @@ A developer-friendly CLI that turns any project (JavaScript, TypeScript, Java, e
 
 ## 🚀 Features
 
-- 📦 **Encode** an entire project (excluding unwanted files) into a zipped Base64 `.txt`.
+- 📦 **Encode** an entire project (excluding unwanted files) into a encoded `.txt` file.
 - 🔁 **Decode** and restore the project exactly as it was.
 - 🔍 Respects `.gitignore` or custom rules.
-- 🔐 Optional encryption.
-- 💼 Useful for freelancers, indie devs, and backups without git.
+- 🔐 Easy encryption.
+- 💼 Useful for freelancers, indie devs and backups without git.
 
 ---
 
