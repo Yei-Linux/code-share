@@ -3,12 +3,17 @@ declare module '@yei-linux/codeshare/index' {
   export {};
 
 }
+declare module '@yei-linux/codeshare/src/crypt' {
+  export function encrypt(text: string, password: string): string;
+  export function decrypt(encryptedText: string, password: string): string;
+
+}
 declare module '@yei-linux/codeshare/src/decode' {
-  export const decodeProject: (filePathContainsProjectEncoded: string) => void;
+  export const decodeProject: (filePathContainsProjectEncoded: string, cryptedPassword?: string) => void;
 
 }
 declare module '@yei-linux/codeshare/src/encode' {
-  export const encodeProject: () => Promise<void>;
+  export const encodeProject: (cryptPassword?: string) => Promise<void>;
 
 }
 declare module '@yei-linux/codeshare/src/helpers' {

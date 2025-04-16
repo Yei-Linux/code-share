@@ -2,8 +2,12 @@ import fs from "fs";
 import path from "node:path";
 import { getCurrentRoute } from "./helpers";
 import unzipper from "unzipper";
+import { decrypt } from "./crypt";
 
-export const decodeProject = (filePathContainsProjectEncoded: string) => {
+export const decodeProject = (
+  filePathContainsProjectEncoded: string,
+  cryptedPassword?: string
+) => {
   try {
     const currentRoute = getCurrentRoute();
     const decodedFolderName = `decodedproject-${Date.now()}`;
@@ -14,7 +18,15 @@ export const decodeProject = (filePathContainsProjectEncoded: string) => {
       filePathContainsProjectEncoded,
       "utf-8"
     );
-    const zipBuffer = Buffer.from(fileBase64Content, "base64");
+
+    if (!cryptedPassword && fileBase64Content.includes("ENC-CODESHARE::")) {
+      throw new Error("You have to use a password");
+    }
+
+    const content = cryptedPassword
+      ? decrypt(fileBase64Content, cryptedPassword)
+      : fileBase64Content;
+    const zipBuffer = Buffer.from(content, "base64");
 
     const zipPath = path.join(currentRoute, "temp.zip");
     fs.writeFileSync(zipPath, zipBuffer);
