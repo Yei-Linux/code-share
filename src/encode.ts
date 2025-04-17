@@ -18,8 +18,6 @@ const getIgnoreFiles = (currentRoute: string) => {
   }
 
   const ignoreFilesSet = [...new Set([...gitIgnoreData, ...ignoreFolderFiles])];
-  console.log(ignoreFilesSet);
-
   ig.add(ignoreFilesSet);
   return ig;
 };

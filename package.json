@@ -1,6 +1,6 @@
 {
   "name": "@yei-linux/codeshare",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "main": "/dist/index.cjs",
   "bin": "/dist/index.cjs",
   "type": "module",
